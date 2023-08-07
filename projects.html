@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <script src="https://kit.fontawesome.com/37c6c4addc.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://font.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.cdnfonts.com/css/cascadia-code" rel="stylesheet">
+    <title>ilereli portfolio</title>
+    <link rel="stylesheet" href="projects.css">
+    <script defer src="experience.js"></script>
+    <script defer src="scrollscript.js"></script>
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo">ilereli's Portfolio</a>
+
+        <nav class="navbar">
+            <a href="mainpage.html" style="--i:1;"><i class='bx bxs-home'></i>Home</a>
+            <a href="about.html" style="--i:2;"><i class='bx bxs-user-detail'></i>About</a>
+            <a href="education.html" style="--i:3;"><i class='bx bxs-school'></i>Education</a>
+            <a href="experience.html" style="--i:4;"><i class='bx bxs-folder-open'></i>Experience</a>
+            <a href="projects.html" style="--i:5;" class="active"><i class='bx bxs-wrench'></i>Projects</a>
+        </nav>
+    </header>
+
+    <section class="project_scroll">
+        <section class="hidden">
+            <div class="intro">
+                <h1>Welcome to my projects page</h1>
+                <br />
+                <h2>- This page will be updated for the foreseeable feature -</h2>
+                <br />
+                <h2>All projects shown are also available in my <a href="https://www.github.com/ilereli"><i class='bx bxl-github'></i>Github</a></h2>
+                <br />
+                <h3>Scroll to find out what I have been working on!</h3>
+                <div class="icon_down">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         height="2em"
+                         viewBox="0 0 384 512">
+                        <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                        <style>
+                            svg {
+                                fill: #ffffff
+                            }
+                        </style>
+                        <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+        <section class="hidden">
+            <div class="proj1">
+                <h1>Magnetic stimulation coding</h1>
+                <h2>Language: C++</h2>
+                <p>
+                    Code developed to spin a magnet at 18000rpm or 300 Hz, stopping every 500ms for 2 hours.
+                    <br class="lb" />
+                    An Adafruit motorshield v2.3 library was used due to hardware.
+                </p>
+                <div class="scroll_code">
+                    <pre class="motorshield">
+#include &ltWire.h&gt
+#include &ltAdafruit_MotorShield.h&gt
+#include "utility/Adafruit_MS_PWMServoDriver.h"
+
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();         //initialize the motorshield
+Adafruit_DCMotor *motor = AFMS.getMotor(3);                 //setting DC motor to port 3
+
+// variables that will change:
+int motorState= 0;                          // bool for motor running or stopped
+const int buttonPin = 7;
+int runtime;
+unsigned long CurrentTime = 0;              // storage of last updated timing
+int epoch = 500;                            // interval at which to blink (milliseconds)
+unsigned long StartTime = millis();         // StartTime variable to store initial activation of system from button press
+unsigned long LoopTime = StartTime;         // LoopTime variable to calculate when epoch is reached to change motor state
+bool PressDown = false;                     // Button activation boolean variable
+
+void setup() 
+{
+    pinMode(buttonPin, INPUT);                //setting button to read input
+    AFMS.begin();                             //starting the motorshield object
+    Serial.begin(9600);
+    Serial.println("System ready");
+}
+void loop() 
+{
+    PressDown = digitalRead(buttonPin);
+
+    if (PressDown == true)
+    {
+        StartTime = millis();
+        LoopTime = StartTime;
+    
+        Serial.println("Button pressed, starting simulation:");
+
+        while (millis() - StartTime < 7200000)
+        {
+            CurrentTime = millis();
+            if (CurrentTime - LoopTime >= epoch)
+            {
+                LoopTime = millis();
+
+                if (motorState == 0)
+                {
+                    motor->setSpeed(255);
+                    Serial.println("motorState HIGH");
+                    Serial.println(millis() - StartTime);
+                    motor->run(FORWARD);
+                    motorState = 1;
+                } 
+                else
+                {
+                    motor->setSpeed(0);
+                    Serial.println("motorState LOW");
+                    motor->run(FORWARD);
+                    motorState = 0;
+                }
+                runtime = millis() - CurrentTime;
+            }
+        }
+        PressDown = false;
+        Serial.println(millis() - StartTime);
+        Serial.println(CurrentTime - LoopTime);
+        motor->setSpeed(0);
+        motor->run(FORWARD);
+        motorState = 0;
+        Serial.println(runtime);
+    }
+  
+    else
+    {
+        motor->setSpeed(0);
+        motor->run(FORWARD);
+        motorState = 0;
+    }
+}
+                </pre>
+                </div>
+            </div>
+        </section>
+        <section class="hidden">
+            <div class="proj2">
+                <h1>Magnetic stimulation platform and holders</h1>
+                <h2>Fusion360</h2>
+                <p>
+                    To house the permanent magnets and hold the stimulation target cells, magnetic holders and a platform were made using Fusion360
+                </p>
+                <div class="images">
+                    <div class="ss">
+                        <img src="./project images/magnetholder.png" alt="Fusion360 created magnet holders" title="Fusion360 created magnet holders" style="width: 500px; height: 500px;" />
+                    </div>
+                    <div class="ss">
+                        <img src="./project images/stimplat.png" alt="Fusion360 created platform" title="Fusion360 created platform" style="width: 500px; height: 500px;" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="hidden">
+            <div class="proj3">
+                <h1>Medical system database</h1>
+                <h2>Language: C++</h2>
+                <p>
+                    Developed with encryption and security in mind,
+                    capable of creating accounts for users and patients.
+                </p>
+                <div class="images">
+                    <div class="ss">
+                        <img src="./project images/database.png" alt="Database UI interface" title="Database UI" style="width:500px" />
+                    </div>
+                    <div class="ss">
+                        <img src="./project images/database_encryptfunc.png" alt="Encryption function" title="Encryption function" style="width:500px" />
+                    </div>
+                </div>
+            </div>
+        </section>
+            <section class="hidden">
+                <div class="proj4">
+                    <h1>Virtual Reality (VR) world</h1>
+                    <h2>Language: C#</h2>
+                    <p>
+                        First person interactable train station made using Unity, controlled using keyboard and mouse.
+                        <br class="lb" />
+                        Animations and sounds were added for immersion when player went into invisible collision boxes
+                    </p>
+                    <div class="images">
+                        <div class="ss">
+                            <img src="./project images/vr_station.png" alt="Unity train station" title="Unity train station" />
+                        </div>
+                        <div class="ss">
+                            <img src="./project images/vr_train.png" alt="Unity train" title="Unity train" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="hidden">
+                <div class="proj5">
+                    <h1>3D Blender objects</h1>
+                    <h2>Open source 3D computer graphics</h2>
+                    <p>
+                        Range of custom low-poly graphics made to put into a Unity VR project.
+                        <br class="lb" />
+                        Objects were made with interaction in mind, movable parts were included.
+                    </p>
+                    <div class="images">
+                        <div class="ss">
+                            <img src="./project images/polarbear.png" alt="Blender created polar bear" title="Blender created polar bear" />
+                        </div>
+                        <div class="ss">
+                            <img src="./project images/interactablebtn.png" alt="Blender created interactable button" title="Blender created interactable button" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="hidden">
+                <div class="proj6">
+                    <h1>MATLAB robotics calculations</h1>
+                    <h2>Language: MATLAB</h2>
+                    <p>
+                        Using MATLAB, simulations of how a robotic arm could swing was calculated and visualized.
+                        <br class="lb" />
+                        The torque and range of motion were all considered through these graphs generated.
+                    </p>
+                    <div class="images">
+                        <div class="ss">
+                            <img src="./project images/rom_graph.png" alt="Range of motion graphs" title="Range of motion graphs" />
+                        </div>
+                        <div class="ss">
+                            <img src="./project images/torque_graphs.png" alt="Torque graph" title="Torque graph" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="hidden">
+                <div class="proj7">
+                    <h1>Pulley arms</h1>
+                    <h2>Fusion360</h2>
+                    <p>
+                        Pulley holders were made in Fusion360 after the MATLAB simulations
+                        confirmed the design's ability to load weight to specifications.
+                    </p>
+                    <div class="images">
+                        <div class="ss">
+                            <img src="./project images/pulleysketches.png" alt="Inital pulley component sketches" title="Inital pulley component sketches" style="width: 500px; height: 500px;" />
+                        </div>
+                        <div class="ss">
+                            <img src="./project images/pulleyhold.png" alt="Fusion360 pulley components" title="Fusion360 pulley components" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+</body>
+</html>
